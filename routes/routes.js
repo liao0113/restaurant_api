@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-
+const { authenticated } = require("../middleware/auth");
 const userController = require("../controllers/userController");
+
+router.get("/users/:id", authenticated, userController.getUserProfile);
 
 //user login and register
 router.get("/login", userController.renderLoginPage);

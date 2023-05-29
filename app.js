@@ -5,6 +5,7 @@ const session = require("express-session");
 const db = require("./models");
 const methodOverride = require("method-override");
 const passport = require("./config/passport");
+const helpers = require("./_helpers");
 
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
@@ -18,6 +19,7 @@ app.engine(
   hbs.engine({
     defaultLayout: "main",
     extname: ".hbs",
+    helpers: "./config/hbs-helper",
   })
 );
 app.set("view engine", "hbs");
@@ -33,7 +35,7 @@ app.use(methodOverride("_method"));
 app.use((req, res, next) => {
   res.locals.success_messages = req.flash("success_messages");
   res.locals.error_messages = req.flash("error_messages");
-  // res.locals.loginUser = helpers.getUser(req);
+  res.locals.loginUser = helpers.getUser(req);
   next();
 });
 
