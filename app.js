@@ -24,10 +24,18 @@ app.set("view engine", "hbs");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(
-  session({ session: "sercet", resave: false, saveUninitialized: false })
-);
+app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(flash());
 app.use(methodOverride("_method"));
+
+app.use((req, res, next) => {
+  res.locals.success_messages = req.flash("success_messages");
+  res.locals.error_messages = req.flash("error_messages");
+  // res.locals.loginUser = helpers.getUser(req);
+  next();
+});
 
 app.listen(port, () => {
   console.log(`Example app is listening at http://localhost:${port}`);

@@ -64,8 +64,8 @@ passport.use(
 
 //JWT
 const jwtOptions = {};
-jwtOptions.jwtFromResquest = ExtractJwt.fromAuthHeaderAsBearerToken();
-jwtOptions.secretOrKey = process.env.JWT_SECRET;
+jwtOptions.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
+jwtOptions.secretOrKey = `${process.env.JWT_SECRET}`;
 
 passport.use(
   new JwtStrategy(jwtOptions, function (jwt_payload, done) {
@@ -86,3 +86,5 @@ passport.use(
       });
   })
 );
+
+module.exports = passport;
