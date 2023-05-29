@@ -4,24 +4,24 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate(models) {
       // define association here
-      Uers.hasMany(Model.Comment);
-      User.belongsToMany(Model.Restaurant, {
-        through: models.Favorite,
+      User.hasMany(models.comment);
+      User.belongsToMany(models.Restaurant, {
+        through: models.favorite,
         foreignKey: "userId",
         as: "FavoritedRestaurants",
       });
-      User.belongsToMany(Model.Restaurant, {
-        through: models.Like,
+      User.belongsToMany(models.Restaurant, {
+        through: models.like,
         foreignKey: "userId",
         as: "LikedRestaurants",
       });
       User.belongsToMany(User, {
-        through: models.Followship,
+        through: models.followship,
         foreignKey: "followingId",
         as: "Followers",
       });
       User.belongsToMany(User, {
-        through: models.Followship,
+        through: models.followship,
         foreignKey: "followerId",
         as: "Followings",
       });
@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       mail: DataTypes.STRING,
       password: DataTypes.STRING,
-      isAdmin: DataTypes.BOOLEN,
+      isAdmin: DataTypes.BOOLEAN,
       image: {
         type: DataTypes.STRING,
         defaultValue: "/image/default.png",

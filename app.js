@@ -15,7 +15,7 @@ const port = process.env.PORT || 3000;
 
 app.engine(
   "hbs",
-  hbs({
+  hbs.engine({
     defaultLayout: "main",
     extname: ".hbs",
   })

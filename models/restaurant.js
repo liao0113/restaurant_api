@@ -10,14 +10,14 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       // define association here
       Restaurant.belongsTo(models.Category);
-      Restaurant.hasMany(models.Comment);
+      Restaurant.hasMany(models.comment);
       Restaurant.belongsToMany(models.User, {
-        through: models.Favorite,
+        through: models.favorite,
         foreignKey: "RestaurantId",
         as: "FavoritedUsers",
       });
       Restaurant.belongsToMany(models.User, {
-        through: models.Like,
+        through: models.like,
         foreignKey: "RestaurantId",
         as: "LikedUsers",
       });

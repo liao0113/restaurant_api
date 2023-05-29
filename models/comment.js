@@ -9,8 +9,8 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Comment.belongsTo(models.User);
-      Comment.belongsTo(models.Restaurant);
+      comment.belongsTo(models.User);
+      comment.belongsTo(models.Restaurant);
     }
   }
   comment.init(
