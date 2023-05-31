@@ -22,10 +22,10 @@ module.exports = {
     res.redirect("/restaurants");
   },
   register: async (req, res) => {
-    const { email, name, password, passwordCheck } = req.body;
+    const { mail, name, password, passwordCheck } = req.body;
     const emailRule =
       /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
-    if (!emailRule.test(email)) {
+    if (!emailRule.test(mail)) {
       req.flash("error_msg", "email格式錯誤!");
       return res.redirect("back");
     }
@@ -34,14 +34,14 @@ module.exports = {
       return res.redirect("back");
     }
     try {
-      const isExist = User.findOne({ where: { email } });
+      const isExist = User.findOne({ where: { mail } });
       if (isExist) {
         req.flash("error_msg", "此信箱已被使用!");
         return res.redirect("back");
       }
       await User.create({
         name,
-        email,
+        mail,
         password: bcrypt.hash(password, 10),
       });
       req.flash("success_msg", "成功註冊帳號!");
@@ -98,7 +98,7 @@ module.exports = {
         let oldUser = await User.findbyPk(req.params.id);
         let updateUser = await oldUser.update({
           name: req.body.name,
-          email: req.body.email,
+          mail: req.body.mail,
           image: file ? img.data.link : oldUser.image,
         });
       });
@@ -108,7 +108,7 @@ module.exports = {
       let oldUser = await User.findbyPk(req.params.id);
       let updateUser = await oldUser.update({
         name: req.body.name,
-        email: req.body.email,
+        mail: req.body.mail,
         image: oldUser.image,
       });
       req.flash("success", "使用者編輯成功!");
@@ -164,6 +164,7 @@ module.exports = {
       followerId: req.user.id,
       followingId: req.params.userId,
     });
+    return res.redirect("back");
   },
   removeFollowing: async (req, res) => {
     await Followship.destroy({
@@ -172,5 +173,6 @@ module.exports = {
         followingId: req.params.userId,
       },
     });
+    return res.redirect("back");
   },
 };
