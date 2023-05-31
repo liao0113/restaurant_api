@@ -32,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
       description: DataTypes.TEXT,
       image: DataTypes.STRING,
       CategoryId: DataTypes.INTEGER,
+      viewCounts: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
     },
     {
       sequelize,
