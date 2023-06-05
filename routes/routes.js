@@ -1,8 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const passport = require("passport");
-const { authenticated } = require("../middleware/auth");
+const { authenticated, adminauthenticated } = require("../middleware/auth");
 const userController = require("../controllers/userController");
+const categoryController = require("../controllers/categoryController");
+const commentController = require("../controllers/commentController");
 //user的操作
 router.get("/users/:id", authenticated, userController.getUserProfile);
 router.get("/user/:id/edit", authenticated, userController.editUserPage);
@@ -43,3 +45,38 @@ router.post(
 router.get("/register", userController.renderRegisterPage);
 router.post("/register", userController.register);
 router.get("/logout", userController.logout);
+
+//category
+router.get(
+  "/admin/categories",
+  adminauthenticated,
+  categoryController.getCategories
+);
+router.post(
+  "/admin/categories",
+  adminauthenticated,
+  categoryController.postCategory
+);
+router.get(
+  "/admin/categories/:id",
+  adminauthenticated,
+  categoryController.getCategories
+);
+router.put(
+  "/admin/categories/:id",
+  adminauthenticated,
+  categoryController.updateCategory
+);
+router.delete(
+  "/admin/categories/:id",
+  adminauthenticated,
+  categoryController.deleteCategory
+);
+
+//comment
+router.post("/comments", authenticated, commentController.postComment);
+router.delete(
+  "/comments/:id",
+  adminauthenticated,
+  commentController.deleteComment
+);

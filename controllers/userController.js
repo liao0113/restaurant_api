@@ -102,7 +102,7 @@ module.exports = {
           image: file ? img.data.link : oldUser.image,
         });
       });
-      req.flash("success", "使用者編輯成功!");
+      req.flash("success_msg", "使用者編輯成功!");
       return res.redirect(`/users/${req.params.id}`);
     } else {
       let oldUser = await User.findbyPk(req.params.id);
@@ -111,7 +111,7 @@ module.exports = {
         mail: req.body.mail,
         image: oldUser.image,
       });
-      req.flash("success", "使用者編輯成功!");
+      req.flash("success_msg", "使用者編輯成功!");
       return res.redirect(`/users/${req.params.id}`);
     }
   },

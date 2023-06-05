@@ -35,8 +35,8 @@ app.use("/image", express.static(__dirname + "/image"));
 app.use("/upload", express.static(__dirname + "/upload"));
 
 app.use((req, res, next) => {
-  res.locals.success_messages = req.flash("success_messages");
-  res.locals.error_messages = req.flash("error_messages");
+  res.locals.success_msgs = req.flash("success_msg");
+  res.locals.error_msg = req.flash("error_msg");
   res.locals.loginUser = helpers.getUser(req);
   next();
 });
