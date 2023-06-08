@@ -34,7 +34,7 @@ module.exports = {
       return res.redirect("back");
     }
     try {
-      const isExist = User.findOne({ where: { mail } });
+      const isExist = await User.findOne({ where: { mail } });
       if (isExist) {
         req.flash("error_msg", "此信箱已被使用!");
         return res.redirect("back");
@@ -65,9 +65,9 @@ module.exports = {
       ],
     });
     const filterRestId = [
-      ...new Set(currUser.Comments.map((comment) => comment.RestaurantId)),
+      ...new Set(currUser.comments.map((comment) => comment.restaurantId)),
     ];
-    //raw: true,next: ture 把提出的資料變成JSON格式
+    //raw: true,nest: ture 把提出的資料變成JSON格式
     const commentRest = await Restaurant.findAll({
       raw: true,
       nest: true,

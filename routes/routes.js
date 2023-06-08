@@ -5,10 +5,38 @@ const { authenticated, adminauthenticated } = require("../middleware/auth");
 const userController = require("../controllers/userController");
 const categoryController = require("../controllers/categoryController");
 const commentController = require("../controllers/commentController");
+const restaurantController = require("../controllers/restaurantController");
+const adminController = require("../controllers/adminController");
+const multer = require("multer");
+const upload = multer({ dest: "temp/" });
+//主頁
+router.get("/", authenticated, (req, res) => res.redirect("/restaurants"));
+router.get("/restaurants", authenticated, restaurantController.getRestaurants);
+router.get(
+  "/restaurants/:id",
+  authenticated,
+  restaurantController.getRestaurant
+);
+router.get("/restaurants/feeds", authenticated, restaurantController.getFeeds);
+router.get(
+  "/restaurants/top",
+  authenticated,
+  restaurantController.getTopRestaurant
+);
+router.get(
+  "/restaurants/:id/dashboard",
+  authenticated,
+  restaurantController.getDashBoard
+);
 //user的操作
 router.get("/users/:id", authenticated, userController.getUserProfile);
-router.get("/user/:id/edit", authenticated, userController.editUserPage);
-router.put("/users/:id", authenticated, userController.putUserProflie);
+router.get("/users/:id/edit", authenticated, userController.editUserPage);
+router.put(
+  "/users/:id",
+  authenticated,
+  upload.single("image"),
+  userController.putUserProflie
+);
 router.get("/users/topr", authenticated, userController.getTopUser);
 //增加刪除喜愛餐廳或追蹤刪除喜歡的user
 router.post(
@@ -46,6 +74,14 @@ router.get("/register", userController.renderRegisterPage);
 router.post("/register", userController.register);
 router.get("/logout", userController.logout);
 
+//comment
+router.post("/comments", authenticated, commentController.postComment);
+router.delete(
+  "/comments/:id",
+  adminauthenticated,
+  commentController.deleteComment
+);
+
 //category
 router.get(
   "/admin/categories",
@@ -72,11 +108,54 @@ router.delete(
   adminauthenticated,
   categoryController.deleteCategory
 );
-
-//comment
-router.post("/comments", authenticated, commentController.postComment);
-router.delete(
-  "/comments/:id",
+//admin users管理
+router.get("/admin/users", adminauthenticated, adminController.getUsers);
+router.patch(
+  "/admin/users/:id",
   adminauthenticated,
-  commentController.deleteComment
+  adminController.toggoleAdmin
 );
+
+//admin restaurants管理
+router.get("/admin", adminauthenticated, (req, res) =>
+  res.redirect("/admin/restaurants")
+);
+router.get(
+  "/admin/restaurants",
+  adminauthenticated,
+  adminController.getRestaurants
+);
+router.get(
+  "/admin/restaurants/create",
+  adminauthenticated,
+  adminController.createRestaurant
+);
+router.post(
+  "/admin/restaurants",
+  adminauthenticated,
+  upload.single("image"),
+  adminController.postRestaurant
+);
+router.get(
+  "/admin/restaurants/:id",
+  adminauthenticated,
+  adminController.getRestaurant
+);
+router.get(
+  "/admin/restaurant/:id/edit",
+  adminauthenticated,
+  adminController.editRestaurant
+);
+router.put(
+  "/admin/restaurants/:id",
+  adminauthenticated,
+  upload.single("image"),
+  adminController.putRestaurant
+);
+router.delete(
+  "/admin/restaurants/:id",
+  adminauthenticated,
+  adminController.deleteRestaurant
+);
+
+module.exports = router;
