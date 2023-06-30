@@ -1,11 +1,10 @@
-const {
-  User,
-  Comment,
-  Restaurant,
-  Favorite,
-  Like,
-  Followship,
-} = require("../models");
+const db = require("../models");
+const User = db.User;
+const Restaurant = db.Restaurant;
+const Comment = db.comment;
+const Favorite = db.favorite;
+const Like = db.like;
+const Followship = db.followship;
 const bcrypt = require("bcryptjs");
 const helpers = require("../_helpers");
 const imgur = require("imgur-node-api");
@@ -23,12 +22,6 @@ module.exports = {
   },
   register: async (req, res) => {
     const { mail, name, password, passwordCheck } = req.body;
-    const emailRule =
-      /^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/;
-    if (!emailRule.test(mail)) {
-      req.flash("error_msg", "email格式錯誤!");
-      return res.redirect("back");
-    }
     if (password !== passwordCheck) {
       req.flash("error_msg", "密碼不一致!");
       return res.redirect("back");
@@ -39,24 +32,27 @@ module.exports = {
         req.flash("error_msg", "此信箱已被使用!");
         return res.redirect("back");
       }
+      const hashedPassword = await bcrypt.hash(password, 10);
       await User.create({
         name,
         mail,
-        password: bcrypt.hash(password, 10),
+        password: hashedPassword,
       });
       req.flash("success_msg", "成功註冊帳號!");
       return res.redirect("/login");
-    } catch (error) {
+    } catch (err) {
       console.log(err);
     }
   },
   logout: (req, res) => {
     req.flash("success_msg", "成功登出!");
-    req.logout();
+    req.logout(function (err) {
+      if (err) return next(err);
+    });
     res.redirect("/login");
   },
   getUserProfile: async (req, res) => {
-    let currUser = await User.findbyPk(req.params.id, {
+    let currUser = await User.findByPk(req.params.id, {
       include: [
         Comment,
         { model: Restaurant, as: "FavoritedRestaurants" },
@@ -79,13 +75,14 @@ module.exports = {
       identify: Number(req.params.id) === Number(helpers.getUser(req).id),
       CommentedRest: commentRest,
     };
-    res.render("profile", { currUser });
+    console.log(currUser);
+    res.render("profile", { user: currUser });
   },
   editUserPage: (req, res) => {
     if (Number(req.params.id) !== Number(helpers.getUser(req).id)) {
       return res.redirect("back");
     } else {
-      return User.findbyPk(req.params.id, { raw: true }).then((user) => {
+      return User.findByPk(req.params.id, { raw: true }).then((user) => {
         res.render("edit", { user });
       });
     }
@@ -95,7 +92,7 @@ module.exports = {
     if (file) {
       imgur.setClientID(`${IMGUR_CLIENT_ID}`);
       imgur.upload(file.path, async (err, img) => {
-        let oldUser = await User.findbyPk(req.params.id);
+        let oldUser = await User.findByPk(req.params.id);
         let updateUser = await oldUser.update({
           name: req.body.name,
           mail: req.body.mail,
@@ -105,8 +102,8 @@ module.exports = {
       req.flash("success_msg", "使用者編輯成功!");
       return res.redirect(`/users/${req.params.id}`);
     } else {
-      let oldUser = await User.findbyPk(req.params.id);
-      let updateUser = await oldUser.update({
+      let oldUser = await User.findByPk(req.params.id);
+      await oldUser.update({
         name: req.body.name,
         mail: req.body.mail,
         image: oldUser.image,
@@ -120,8 +117,8 @@ module.exports = {
       include: [{ model: "User", as: "Followers" }],
     });
     users = users.map((user) => ({
-      ...user.toJSON(),
-      followerCount: user.Followers.length,
+      ...users.dataValues,
+      FollowerCount: user.Followers.length,
       isFollowed: req.user.Followings.map((data) => data.id).includes(user.id),
     }));
     users = users.sort((a, b) => b.FollowerCount - a.FollowerCount);

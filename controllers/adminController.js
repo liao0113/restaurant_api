@@ -1,8 +1,8 @@
-const Restaurant = require("../models/restaurant");
-const Category = require("../models/category");
-const User = require("../models/user");
+const db = require("../models");
+const User = db.User;
+const Restaurant = db.Restaurant;
+const Category = db.Category;
 const imgur = require("imgur-node-api");
-const restaurant = require("../models/restaurant");
 
 module.exports = {
   getRestaurants: async (req, res) => {
@@ -13,11 +13,12 @@ module.exports = {
     });
     res.render("admin/restaurants", { restaurants });
   },
-  getRestaurant: async (req, res) => {
-    const restaurant = await Restaurant.findByPk(req.params.id, {
+  getRestaurant: (req, res) => {
+    Restaurant.findByPk(req.params.id, {
       include: Category,
+    }).then((restaurant) => {
+      res.render("admin/restaurant", { restaurant: restaurant.toJSON() });
     });
-    res.render("admin/restaurant", { restaurant: restaurant.toJSON() });
   },
   createRestaurant: (req, res) => {
     Category.findAll({
@@ -68,7 +69,7 @@ module.exports = {
       nest: true,
     }).then((categories) => {
       Restaurant.findByPk(req.params.id).then((restaurant) => {
-        return res.render("admin/create", {
+        return res.render("admin/createRest", {
           restaurant: restaurant.toJSON(),
           categories,
         });
@@ -118,12 +119,12 @@ module.exports = {
     res.redirect("/admin/restaurants");
   },
   getUsers: async (req, res) => {
-    const users = await User.findAll({ raw: true });
+    const users = await User.findAll({ raw: true, nest: true });
     res.render("admin/users", { users });
   },
-  toggoleAdmin: async (req, res) => {
+  toggleAdmin: async (req, res) => {
     const user = await User.findByPk(req.params.id);
-    if (user.email === "root@exmaple.com") {
+    if (user.mail === "root@example.com") {
       req.flash("error_msg", "禁止變更管理員權限!");
       return res.redirect("back");
     }

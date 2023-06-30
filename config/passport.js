@@ -1,12 +1,13 @@
 const passport = require("passport");
 const localStrategy = require("passport-local").Strategy;
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const passportJwt = require("passport-jwt");
 const ExtractJwt = passportJwt.ExtractJwt;
 const JwtStrategy = passportJwt.Strategy;
-const User = require("../models/user");
-const Restaurant = require("../models/restaurant");
+const db = require("../models");
+const User = db.User;
+const Restaurant = db.Restaurant;
 
 //serialize and deserialize user
 
@@ -17,7 +18,7 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((id, done) => {
   console.log("deserializing user !");
-  User.findbyPk(id, {
+  User.findByPk(id, {
     include: [
       { model: Restaurant, as: "FavoritedRestaurants" },
       { model: Restaurant, as: "LikedRestaurants" },
@@ -37,27 +38,26 @@ passport.deserializeUser((id, done) => {
 passport.use(
   new localStrategy(
     {
-      usernameField: "email",
+      usernameField: "mail",
       passwordField: "password",
       passReqToCallback: true,
     },
-    (req, email, password, done) => {
-      User.findOne({ where: { email } }).then((user) => {
-        if (!user)
-          return done(
-            null,
-            false,
-            req.flash("error_messages", "帳號或密碼輸入錯誤")
-          );
-        const isMatch = bcrypt.compare(password, user.password);
-        if (!isMatch)
-          return done(
-            null,
-            false,
-            req.flash("error_messages", "帳號或密碼輸入錯誤!")
-          );
-        return done(null, user);
-      });
+    (req, mail, password, done) => {
+      User.findOne({ where: { mail } })
+        .then((user) => {
+          if (!user)
+            return done(
+              null,
+              false,
+              req.flash("error_messages", "帳號或密碼輸入錯誤")
+            );
+          bcrypt.compare(password, user.password, function (err, result) {
+            if (err) return done(null, false);
+            if (!result) return done(null, false);
+            else return done(null, user);
+          });
+        })
+        .catch((err) => done(null, false));
     }
   )
 );

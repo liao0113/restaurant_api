@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+
 const passport = require("passport");
 const { authenticated, adminauthenticated } = require("../middleware/auth");
 const userController = require("../controllers/userController");
@@ -37,7 +38,7 @@ router.put(
   upload.single("image"),
   userController.putUserProflie
 );
-router.get("/users/topr", authenticated, userController.getTopUser);
+router.get("/users/top", authenticated, userController.getTopUser);
 //增加刪除喜愛餐廳或追蹤刪除喜歡的user
 router.post(
   "/favorite/:restaurantId",
@@ -61,14 +62,11 @@ router.delete(
 router.get("/login", userController.renderLoginPage);
 router.post(
   "/login",
-  passport.authenticate(
-    "local",
-    {
-      failureRedirect: "/login",
-      failureFlash: true,
-    },
-    userController.login
-  )
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    failureFlash: true,
+  }),
+  userController.login
 );
 router.get("/register", userController.renderRegisterPage);
 router.post("/register", userController.register);
@@ -113,7 +111,7 @@ router.get("/admin/users", adminauthenticated, adminController.getUsers);
 router.patch(
   "/admin/users/:id",
   adminauthenticated,
-  adminController.toggoleAdmin
+  adminController.toggleAdmin
 );
 
 //admin restaurants管理
@@ -129,6 +127,11 @@ router.get(
   "/admin/restaurants/create",
   adminauthenticated,
   adminController.createRestaurant
+);
+router.get(
+  "/admin/restaurants/:id/edit",
+  adminauthenticated,
+  adminController.editRestaurant
 );
 router.post(
   "/admin/restaurants",

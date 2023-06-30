@@ -1,4 +1,5 @@
-const Comment = require("../models/comment");
+const db = require("../models");
+const Comment = db.comment;
 
 module.exports = {
   postComment: async (req, res) => {
@@ -10,7 +11,7 @@ module.exports = {
     res.redirect(`/restaurants/${req.body.restaurantId}`);
   },
   deleteComment: async (req, res) => {
-    const deletedComment = await Comment.findbyPk(req.params.id);
+    const deletedComment = await Comment.findByPk(req.params.id);
     await deletedComment.destroy();
     return res.redirect("back");
   },

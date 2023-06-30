@@ -1,13 +1,12 @@
 const helpers = require("../_helpers");
-const {
-  User,
-  Comment,
-  Restaurant,
-  Favorite,
-  Like,
-  Followship,
-  Category,
-} = require("../models");
+const db = require("../models");
+const favorite = require("../models/favorite");
+const restaurant = require("../models/restaurant");
+const User = db.User;
+const Restaurant = db.Restaurant;
+const Comment = db.comment;
+const Favorite = db.favorite;
+const Category = db.Category;
 const pageLimit = 9;
 
 module.exports = {
@@ -38,10 +37,10 @@ module.exports = {
     const prev = page - 1 < 1 ? 1 : page - 1;
     //後一頁
     const next = page + 1 > pages ? pages : page + 1;
-
+    //findAndCountAll 出來的值有兩個count 代表有幾個data, 而rows是一個array存取data
     const data = restaurants.rows.map((r) => ({
       ...r.dataValues,
-      description: r.Values.description.substring(0, 70),
+      description: r.dataValues.description.substring(0, 70),
       categoryName: r.Category.name,
       isFavorited: req.user.FavoritedRestaurants.map((d) => d.id).includes(
         r.id
@@ -60,19 +59,19 @@ module.exports = {
     });
   },
   getRestaurant: async (req, res) => {
-    const restaurant = await Restaurant.findbyPk(req.params.id, {
+    let restaurant = await Restaurant.findByPk(req.params.id, {
       include: [
         Category,
         { model: User, as: "FavoritedUsers" },
         { model: User, as: "LikedUsers" },
-        { model: Comment, include: [User] },
+        { model: Comment, include: User },
       ],
     });
     await restaurant.increment("viewCounts");
-    const isFavorited = restaurant.FavoritedUsers.map(
-      (data) => data.id
-    ).includes(req.user.id);
-    const isLiked = restaurant.LikedUsers.map((data) => data.id).includes(
+    const isFavorited = restaurant.FavoritedUsers.map((d) => d.id).includes(
+      req.user.id
+    );
+    const isLiked = restaurant.LikedUsers.map((d) => d.id).includes(
       req.user.id
     );
     res.render("restaurant", {
@@ -85,27 +84,27 @@ module.exports = {
   getFeeds: (req, res) => {
     Promise.all([
       Restaurant.findAll({
-        include: Category,
         limit: 10,
         raw: true,
         nest: true,
-        order: ["createdAt", "DESC"],
+        order: [["createAt", "DESC"]],
+        include: [Category],
       }),
       Comment.findAll({
-        include: [User, Restaurant],
         limit: 10,
         raw: true,
         nest: true,
-        order: ["createdAt", "DESC"],
+        order: [["createAt", "DESC"]],
+        include: [User, Restaurant],
       }),
-    ]).then((restaurants, comments) => {
-      return res.render("feeds", { restaurants, comments });
+    ]).then(([restaurants, comments]) => {
+      res.render("feeds", { restaurants, comments });
     });
   },
   getDashBoard: (req, res) => {
     Promise.all([
-      Restaurant.findbyPk(req.params.id, {
-        include: Category,
+      Restaurant.findByPk(req.params.id, {
+        include: [Category],
       }),
       Comment.findAndCountAll({
         where: { restaurantId: req.params.id },
@@ -117,8 +116,8 @@ module.exports = {
         raw: true,
         nest: true,
       }),
-    ]).then((restaurant, comments, favorites) => {
-      return res.render("dashboard", {
+    ]).then(([restaurant, comments, favorites]) => {
+      res.render("dashboard", {
         restaurant: restaurant.toJSON(),
         comments,
         favorites,

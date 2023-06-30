@@ -13,12 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       Restaurant.hasMany(models.comment);
       Restaurant.belongsToMany(models.User, {
         through: models.favorite,
-        foreignKey: "RestaurantId",
+        foreignKey: "restaurantId",
         as: "FavoritedUsers",
       });
       Restaurant.belongsToMany(models.User, {
         through: models.like,
-        foreignKey: "RestaurantId",
+        foreignKey: "restaurantId",
         as: "LikedUsers",
       });
     }
@@ -28,7 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       tel: DataTypes.STRING,
       address: DataTypes.STRING,
-      opening_hour: DataTypes.STRING,
+      opening_hours: DataTypes.STRING,
       description: DataTypes.TEXT,
       image: DataTypes.STRING,
       CategoryId: DataTypes.INTEGER,

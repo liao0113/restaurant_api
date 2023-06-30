@@ -1,6 +1,6 @@
 const chai = require("chai");
 const request = require("supertest");
-const should = chai.should();
+const { should, expect } = chai;
 
 const app = require("../app");
 const {
@@ -19,7 +19,7 @@ describe("# R01", () => {
         // 對 POST /signin 發出請求，參數是錯誤的密碼
         .post("/login")
         .type("urlencoded")
-        .send("email=root@example.com&password=123")
+        .send("mail=root@example.com&password=123")
         // 期待登入驗證回應失敗，重新導向 /login
         .expect("Location", "/login")
         .expect(302, done);
@@ -30,7 +30,7 @@ describe("# R01", () => {
         // 對 POST /signin 發出請求，參數是錯誤的帳號
         .post("/login")
         .type("urlencoded")
-        .send("email=xd&password=12345678")
+        .send("mail=xd&password=12345678")
         .expect("Location", "/login")
         .expect(302, done);
     });
@@ -40,7 +40,7 @@ describe("# R01", () => {
         // 對 POST /signin 發出請求，參數皆正確
         .post("/login")
         .type("urlencoded")
-        .send("email=root@example.com&password=12345678")
+        .send("mail=root@example.com&password=12345678")
         .expect("Location", "/restaurants")
         .expect(302, done);
     });
@@ -51,9 +51,9 @@ describe("# R01", () => {
     before(() => {
       // 製作假資料
       // 本 context 會用這筆資料進行測試
-      this.userMock = createModelMock("User", {
+      this.UserMock = createModelMock("User", {
         id: 1,
-        email: "root@example.com",
+        mail: "root@example.com",
         name: "admin",
         isAdmin: false,
       });
@@ -73,8 +73,8 @@ describe("# R01", () => {
         await this.adminController.getUsers(req, res);
         // getUser 執行完畢後，應呼叫 res.render
         // res.render 的第 2 個參數應是 users
-        // 根據測試資料，users 中的第 1 筆資料，name 屬性值應該要是 'admin'
-        res.render.getCall(0).args[1].users[0].name.should.equal("admin");
+        // 根據測試資料，users 中的第 1 筆資料，name 屬性值應該要是 'root'
+        res.render.getCall(0).args[1].users[0].name.should.equal("root");
       });
     });
 
@@ -82,9 +82,9 @@ describe("# R01", () => {
       before(() => {
         // 製作假資料
         // 本 context 會用這筆資料進行測試
-        this.userMock = createModelMock("User", {
+        this.UserMock = createModelMock("User", {
           id: 1,
-          email: "root@example.com",
+          mail: "root@example.com",
           name: "admin",
           isAdmin: false,
         });
@@ -112,9 +112,9 @@ describe("# R01", () => {
       before(() => {
         // 製作假資料
         // 本 context 會用這筆資料進行測試
-        this.userMock = createModelMock("User", {
+        this.UserMock = createModelMock("User", {
           id: 1,
-          email: "root@example.com",
+          mail: "root@example.com",
           name: "admin",
           isAdmin: false,
         });
